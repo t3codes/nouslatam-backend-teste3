@@ -1,4 +1,10 @@
 fastapi
 uvicorn[standard]
-pytest
 httpx
+redis
+pydantic
+requests
+pytest
+pytest-asyncio
+
+

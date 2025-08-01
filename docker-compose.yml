@@ -6,7 +6,7 @@ services:
     ports:
       - "${BACKEND_PORT}:${BACKEND_PORT}"
     volumes:
-      - ./app:/app  
+      - ./app:/app 
     env_file:
       - ./.env
     depends_on:
