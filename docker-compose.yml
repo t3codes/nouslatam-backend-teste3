@@ -1,0 +1,50 @@
+version: '3.8'
+
+services:
+  fastapi:
+    build: .
+    ports:
+      - "${BACKEND_PORT}:${BACKEND_PORT}"
+    volumes:
+      - ./app:/app  
+    env_file:
+      - ./.env
+    depends_on:
+      - postgres
+      - redis
+      - elasticsearch
+    environment:
+      - POSTGRES_HOST=${POSTGRES_HOST}
+      - POSTGRES_PORT=${POSTGRES_PORT}
+      - REDIS_HOST=${REDIS_HOST}
+      - REDIS_PORT=${REDIS_PORT}
+      - ELASTICSEARCH_HOST=${ELASTICSEARCH_HOST}
+      - ELASTICSEARCH_PORT=${ELASTICSEARCH_PORT}
+      - ENVIRONMENT=${ENVIRONMENT}
+
+  postgres:
+    image: postgres:13
+    ports:
+      - "${POSTGRES_PORT}:${POSTGRES_PORT}"
+    env_file:
+      - ./.env
+    environment:
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+
+  redis:
+    image: redis:6-alpine
+    ports:
+      - "${REDIS_PORT}:${REDIS_PORT}"
+    env_file:
+      - ./.env
+
+  elasticsearch:
+    image: elasticsearch:7.17.0
+    ports:
+      - "${ELASTICSEARCH_PORT}:${ELASTICSEARCH_PORT}"
+    environment:
+      - discovery.type=single-node
+    env_file:
+      - ./.env
