@@ -1,0 +1,76 @@
+type: collection.insomnia.rest/5.0
+name: nousLatan-collection
+meta:
+  id: wrk_4fbb3b66f6544a39969fd1f700f53540
+  created: 1754074606964
+  modified: 1754074606964
+  description: ""
+collection:
+  - url: http://127.0.0.1:8000/
+    name: Rota Teste
+    meta:
+      id: req_fb0d6f2be0084324b5ffe5e73cfcddc2
+      created: 1754075115930
+      modified: 1754156350653
+      isPrivate: false
+      description: ""
+      sortKey: -1754075115930
+    method: GET
+    headers:
+      - name: User-Agent
+        value: insomnia/11.4.0
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://localhost:8000/posts/python?period=day&limit=10&sort_type=top
+    name: Consulta posts Raddit
+    meta:
+      id: req_aaa45d1950f04ae7af34fb5635df6025
+      created: 1754157560968
+      modified: 1754157698193
+      isPrivate: false
+      description: |
+        <p>Para acessar a rota de posts de um determinado subreddit, use o seguinte link:</p>
+        <pre><code>http://localhost:8000/posts/{subreddit}?period={period}&limit={limit}&sort_type={sort_type}</code></pre>
+
+        <p>Substitua as variáveis conforme abaixo:</p>
+        <ul>
+            <li><strong>{subreddit}</strong> - O nome do subreddit que você quer acessar. Exemplo: <code>python</code></li>
+            <li><strong>{period}</strong> - O período de tempo para os posts. Pode ser: <code>hour</code>, <code>day</code>, <code>week</code>, <code>month</code>, <code>year</code>, <code>all</code>. Exemplo: <code>day</code></li>
+            <li><strong>{limit}</strong> - O número máximo de posts a ser retornado. Exemplo: <code>10</code></li>
+            <li><strong>{sort_type}</strong> - O tipo de ordenação dos posts. Pode ser: <code>hot</code>, <code>new</code>, <code>top</code>, <code>rising</code>. Exemplo: <code>top</code></li>
+        </ul>
+
+        <p>Exemplo de link:</p>
+        <pre><code>http://localhost:8000/posts/python?period=day&limit=10&sort_type=top</code></pre>
+      sortKey: -1753928847062.9375
+    method: GET
+    headers:
+      - name: User-Agent
+        value: insomnia/11.4.0
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+cookieJar:
+  name: Default Jar
+  meta:
+    id: jar_7c7b76ba6c24b2fa02c382d6f639926b75cef16a
+    created: 1754074606966
+    modified: 1754074606966
+environments:
+  name: Base Environment
+  meta:
+    id: env_7c7b76ba6c24b2fa02c382d6f639926b75cef16a
+    created: 1754074606965
+    modified: 1754074606965
+    isPrivate: false
