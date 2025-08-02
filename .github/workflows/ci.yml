@@ -2,73 +2,130 @@ name: CI - FastAPI Trending Topics
 
 on:
   push:
-    branches: [master]
+    branches: ["*"]
   pull_request:
-    branches: [master]
+    branches: ["*"]
 
 jobs:
   test:
     runs-on: ubuntu-latest
+    container: python:3.10
 
     env:
-      POSTGRES_DB: testdb
-      POSTGRES_USER: testuser
-      POSTGRES_PASSWORD: testpass
-      POSTGRES_PORT: 5432
-      POSTGRES_HOST: localhost
-      REDIS_HOST: localhost
+      REDIS_HOST: redis
       REDIS_PORT: 6379
-      ELASTICSEARCH_HOST: localhost
+      ELASTICSEARCH_HOST: elasticsearch
       ELASTICSEARCH_PORT: 9200
+      KIBANA_HOST: kibana
+      KIBANA_PORT: 5601
+      KIBANA_URL: http://kibana:5601
       BACKEND_PORT: 8000
       ENVIRONMENT: test
+      ELASTICSEARCH_INDEX_POSTS: posts
+      ELASTICSEARCH_INDEX_LOGS: logs_sistema
+      SERVICE_NAME: fastapi-app
 
     services:
-      postgres:
-        image: postgres:13
-        env:
-          POSTGRES_DB: testdb
-          POSTGRES_USER: testuser
-          POSTGRES_PASSWORD: testpass
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd "pg_isready -U testuser" 
-          --health-interval 10s 
-          --health-timeout 5s 
-          --health-retries 5
-
       redis:
         image: redis:6-alpine
         ports:
           - 6379:6379
+        options: >-
+          --network-alias redis
 
       elasticsearch:
         image: elasticsearch:7.17.0
         env:
           discovery.type: single-node
+          "ES_JAVA_OPTS": "-Xms512m -Xmx512m"
         ports:
           - 9200:9200
         options: >-
-          --health-cmd "curl --silent --fail localhost:9200/_cluster/health || exit 1"
+          --health-cmd "curl --silent --fail http://localhost:9200/_cluster/health || exit 1"
           --health-interval 10s
           --health-timeout 5s
-          --health-retries 5
+          --health-retries 10
+          --network-alias elasticsearch
+
+      kibana:
+        image: docker.elastic.co/kibana/kibana:7.17.0
+        env:
+          ELASTICSEARCH_HOSTS: http://elasticsearch:9200
+        ports:
+          - 5601:5601
+        options: >-
+          --health-cmd "curl --silent --fail http://localhost:5601/api/status || exit 1"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 10
+          --network-alias kibana
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
 
       - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: "3.10"
-
-      - name: Install dependencies
         run: |
+          apt-get update && apt-get install -y iputils-ping jq
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
+      - name: Wait for Elasticsearch and Kibana to be fully ready for tests
+        run: |
+          echo "Waiting for Elasticsearch to be fully ready for tests..."
+          for i in {1..60}; do
+            RESPONSE=$(curl -s http://elasticsearch:9200/_cluster/health)
+            if echo "$RESPONSE" | grep -q '"status":"green"'; then
+              echo "Elasticsearch is ready!"
+              echo "Elasticsearch cluster health: $RESPONSE"
+              break
+            fi
+            echo "Elasticsearch is not ready yet. Retrying ($i/60)..."
+            echo "Elasticsearch cluster health: $RESPONSE"
+            curl -v http://elasticsearch:9200/_cluster/health || true
+            curl -s http://elasticsearch:9200/_cat/indices?v || true
+            sleep 2
+          done
+          if ! echo "$RESPONSE" | grep -q '"status":"green"'; then
+            echo "Elasticsearch failed to start!"
+            echo "Final Elasticsearch cluster health: $(curl -s http://elasticsearch:9200/_cluster/health || true)"
+            curl -v http://elasticsearch:9200/_cluster/health || true
+            curl -s http://elasticsearch:9200/_cat/indices?v || true
+            exit 1
+          fi
+
+          echo "Waiting for Kibana to be fully ready for tests..."
+          for i in {1..60}; do
+            RESPONSE=$(curl -s http://kibana:5601/api/status)
+            if echo "$RESPONSE" | jq -r '.status.overall.state' | grep -q '^green$'; then
+              echo "Kibana is ready!"
+              echo "Kibana status: $RESPONSE"
+              break
+            fi
+            echo "Kibana is not ready yet. Retrying ($i/60)..."
+            echo "Kibana status: $RESPONSE"
+            curl -v http://kibana:5601/api/status || true
+            echo "Checking Kibana's connection to Elasticsearch..."
+            curl -s http://kibana:5601/api/status | jq '.status.statuses[] | select(.id | contains("plugin:elasticsearch"))' || true
+            sleep 2
+          done
+          if ! echo "$RESPONSE" | jq -r '.status.overall.state' | grep -q '^green$'; then
+            echo "Kibana failed to start!"
+            echo "Final Kibana status: $(curl -s http://kibana:5601/api/status || true)"
+            curl -v http://kibana:5601/api/status || true
+            echo "Final Elasticsearch health: $(curl -s http://elasticsearch:9200/_cluster/health || true)"
+            exit 1
+          fi
+
+          # Verificar conectividade a partir do contêiner de teste
+          echo "Verificando conectividade do contêiner de teste para Elasticsearch..."
+          ping -c 4 elasticsearch || true
+          curl -v http://elasticsearch:9200 || true
+          echo "Verificando conectividade do contêiner de teste para Kibana..."
+          ping -c 4 kibana || true
+          curl -v http://kibana:5601/api/status || true
+
       - name: Run tests
         run: |
-          pytest
+          cd app
+          pytest tests/
