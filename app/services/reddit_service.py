@@ -1,6 +1,7 @@
-import httpx
-import asyncio
+from services.elasticsearch_service import ElasticsearchService
 from typing import List, Dict, Optional
+import asyncio
+import httpx
 
 class RedditAPIError(Exception):
     """Exceção base para erros relacionados à API do Reddit."""
@@ -109,6 +110,7 @@ class RedditService:
                     "score": post_data.get('score', 0)
                 }
                 formatted_posts.append(formatted_post)
+                ElasticsearchService.index_post(post_id=post_data['score'], post_data=formatted_post)
 
             return formatted_posts
 

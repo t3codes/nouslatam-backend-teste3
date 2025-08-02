@@ -37,7 +37,8 @@ Acesse a Action no GitHub para verificar a execução da pipeline de CI: GitHub 
 ### 4. Informações Importantes
 FastAPI: Framework usado para construir a API.
 Docker: Utilizado para orquestrar os serviços.
-PostgreSQL, Redis e Elasticsearch são serviços de banco de dados utilizados para o projeto.
+PostgreSQL, Redis e Elasticsearch são serviços de banco de dados utilizados para o projeto. para visualizar dados de logs porfavor acesse o kibana_access.md. 
+Na Raiz do projeto encontra-se um arquivo collection, que provê um arquivo que pode ser importado pelo insomnia ou postman para usar as rotas.
 
 ### 5. O QUE EU FARIA COM MAIS TEMPO
-...
+... As informações detalhadas sobre o que eu faria com mais tempo estão disponíveis em um arquivo autoexplicativo na raiz do projeto.
