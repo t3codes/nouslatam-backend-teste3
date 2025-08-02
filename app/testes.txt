@@ -1,0 +1,25 @@
+============================= test session starts ==============================
+platform linux -- Python 3.9.23, pytest-8.4.1, pluggy-1.6.0
+rootdir: /app
+plugins: asyncio-1.1.0, anyio-4.9.0
+asyncio: mode=strict, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collected 6 items
+
+tests/elastic_initializer_test.py sss..                                  [ 83%]
+tests/main_test.py .                                                     [100%]
+
+=============================== warnings summary ===============================
+services/elasticsearch_initializer.py:39
+  /app/services/elasticsearch_initializer.py:39: ElasticsearchWarning: Elasticsearch built-in security features are not enabled. Without authentication, your cluster could be accessible to anyone. See https://www.elastic.co/guide/en/elasticsearch/reference/7.17/security-minimal-setup.html to enable security.
+    if not es.indices.exists(index=ELASTICSEARCH_INDEX_POSTS):
+
+services/elasticsearch_initializer.py:61
+  /app/services/elasticsearch_initializer.py:61: ElasticsearchWarning: Elasticsearch built-in security features are not enabled. Without authentication, your cluster could be accessible to anyone. See https://www.elastic.co/guide/en/elasticsearch/reference/7.17/security-minimal-setup.html to enable security.
+    if not es.indices.exists(index=ELASTICSEARCH_INDEX_LOGS):
+
+main.py:104
+  /app/main.py:104: DeprecationWarning: `regex` has been deprecated, please use `pattern` instead
+    field: str = Query(..., description="Campo onde a pesquisa será realizada (ex: title, author, etc.)", regex="^(title|author|url|score|created_utc)$"),
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=================== 3 passed, 3 skipped, 3 warnings in 1.07s ===================
