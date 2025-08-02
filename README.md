@@ -1,7 +1,7 @@
 
 # **API de Trending Topics**
 
-Este projeto é uma **API FastAPI** para consulta de tópicos populares. Ele utiliza **Docker** para orquestrar os serviços e tem integração com **PostgreSQL**, **Redis** e **Elasticsearch**.
+Este projeto é um projeto de um teste prático que consulta tópicos populares na API do Reddit. Ele utiliza **Docker** para orquestrar os serviços e tem integração com **FastApi**, **Redis**, **Kibana** e **Elasticsearch**.
 
 ## 📦 **Pré-requisitos**
 
@@ -26,7 +26,7 @@ cd nouslatam-backend-teste3
 docker-compose up --build
 ```
 Este comando vai:
-Construir a imagem do FastAPI e levantar os containers para PostgreSQL, Redis e Elasticsearch.
+Construir a imagem do FastAPI e levantar os containers para Redis, Kibana e Elasticsearch.
 O FastAPI estará disponível em: http://localhost:8000
 
 ### 3. Acesse a documentação da API:
@@ -37,7 +37,7 @@ Acesse a Action no GitHub para verificar a execução da pipeline de CI: GitHub 
 ### 4. Informações Importantes
 FastAPI: Framework usado para construir a API.
 Docker: Utilizado para orquestrar os serviços.
-PostgreSQL, Redis e Elasticsearch são serviços de banco de dados utilizados para o projeto. para visualizar dados de logs porfavor acesse o kibana_access.md. 
+Redis e Elasticsearch são serviços de banco de dados utilizados para o projeto. para visualizar dados de logs porfavor acesse o kibana_access.md. 
 Na Raiz do projeto encontra-se um arquivo collection, que provê um arquivo que pode ser importado pelo insomnia ou postman para usar as rotas.
 
 ### 5. O QUE EU FARIA COM MAIS TEMPO
