@@ -10,3 +10,5 @@ class Post(BaseModel):
 
 class PostListResponse(BaseModel):
     posts: List[Post]
+    origin: str  # colocado aqui somete pra nivel de obsrvabilidade
+    cache_status: str

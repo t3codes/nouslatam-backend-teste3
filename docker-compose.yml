@@ -21,6 +21,8 @@ services:
       - ELASTICSEARCH_HOST=${ELASTICSEARCH_HOST}
       - ELASTICSEARCH_PORT=${ELASTICSEARCH_PORT}
       - ENVIRONMENT=${ENVIRONMENT}
+    networks:
+      - raddit_network
 
   postgres:
     image: postgres:13
@@ -32,6 +34,8 @@ services:
       - POSTGRES_DB=${POSTGRES_DB}
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    networks:
+      - raddit_network
 
   redis:
     image: redis:6-alpine
@@ -39,6 +43,8 @@ services:
       - "${REDIS_PORT}:${REDIS_PORT}"
     env_file:
       - ./.env
+    networks:
+      - raddit_network
 
   elasticsearch:
     image: elasticsearch:7.17.0
@@ -48,3 +54,42 @@ services:
       - discovery.type=single-node
     env_file:
       - ./.env
+    networks:
+      - raddit_network
+
+  initializer:
+    image: python:3.9
+    volumes:
+      - ./app/services:/services
+    environment:
+      - ELASTICSEARCH_HOST=elasticsearch
+      - ELASTICSEARCH_PORT=${ELASTICSEARCH_PORT}
+      - KIBANA_HOST=kibana
+      - KIBANA_PORT=${KIBANA_PORT}
+    command: >
+      bash -c "
+        pip install elasticsearch requests &&
+        python3 /services/wait_for_services.py &&
+        python3 /services/elasticsearch_initializer.py"
+    depends_on:
+      - elasticsearch
+      - kibana
+    networks:
+      - raddit_network
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:7.17.0
+    ports:
+      - "${KIBANA_PORT}:${KIBANA_PORT}"
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:${ELASTICSEARCH_PORT}
+    depends_on:
+      - elasticsearch
+    env_file:
+      - ./.env
+    networks:
+      - raddit_network
+
+networks:
+  raddit_network:
+    driver: bridge

@@ -1,10 +1,12 @@
-fastapi[all]
 uvicorn[standard]
-httpx
-redis
+pytest-asyncio
+elasticsearch
+fastapi[all]
 pydantic
+logstash
 requests
 pytest
-pytest-asyncio
+httpx
+redis
 
 
